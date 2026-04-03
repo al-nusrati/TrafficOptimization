@@ -1,0 +1,69 @@
+# ===== Build & Compilation =====
+*.o
+*.obj
+*.out
+*.exe
+*.app
+*.dll
+*.so
+*.a
+*.lib
+*.dylib
+
+# ===== CMake (if you use it later) =====
+CMakeFiles/
+cmake_install.cmake
+CMakeCache.txt
+Makefile
+*.cmake
+
+# ===== IDE & Editors =====
+.vscode/
+.idea/
+.vs/
+*.cbp
+*.layout
+*.depend
+*.swp
+*.swo
+*.swn
+*~
+
+# ===== macOS =====
+.DS_Store
+*.dSYM/
+
+# ===== Windows =====
+Thumbs.db
+*.lnk
+
+# ===== Project Specific =====
+build/
+bin/
+Debug/
+Release/
+output/
+temp/
+*.log
+
+# ===== Temporary/Test Files =====
+*.tmp
+test_output/
+debug/
+*.pdb
+
+# ===== Node modules (if using any npm tools) =====
+node_modules/
+
+# ===== VS Code specific =====
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# ===== Environment files =====
+.env
+.env.local
+
+# ===== Compiled Python (if any) =====
+__pycache__/
+*.pyc
