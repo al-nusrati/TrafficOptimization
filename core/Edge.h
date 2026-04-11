@@ -1,30 +1,47 @@
 #pragma once
-#include<iostream>
-#include<queue>   
+#include <iostream>
+#include <deque>
 using namespace std;
 
-//edge needs a vehicle queue to store the vehicles on the edge and this struct will be defined later
-struct Vehicle; 
+struct Vehicle;
 
 struct Edge
 {
-	int destination;               //the destination node of the edge 
-	double roadLength;           //length of the road
-	double maxSpeed;     //maximum speed allowed on the road
-	double capacity;       //road capacity
-	double flowRate;       //vehicles currently on the road
-	double freeTravelTime;     //travel time when traffic is zero
-	double travelTime;         //travel time on the road
-	double ratio;       //ratio of vehicles currently on the road to the capacity of road
-	queue<Vehicle*> Q_ij; //queue for the vehicles on the road
+    // ── Physical properties (never change) ───────────────────
+    int    destination;
+    double roadLength;
+    double maxSpeed;
+    double capacity;
 
-	Edge():destination(-1),roadLength(0),maxSpeed(1),capacity(1),flowRate(0),freeTravelTime(0),travelTime(0),ratio(0)
-	{ }
+    // ── Traffic state (updated each step) ────────────────────
+    double flowRate;          // f_ij(t)  : vehicles on road right now
+    double freeTravelTime;    // w_free   : length / maxSpeed
+    double travelTime;        // w_ij(t)  : congestion-adjusted (BPR formula)
+    double ratio;             // rho_ij   : flowRate / capacity  (0=free, 1+=jammed)
+    double lastRatio;         // rho from PREVIOUS step — Person 3 uses this
+                              // to decide: if |ratio - lastRatio| > 0.1 → re-run Dijkstra
+                              // otherwise keep old route (no wasted Dijkstra calls)
 
+    // ── Signal state (set by trafficSignalControl each step) ──
+    bool   greenSignal;       // true = vehicles can leave this road
 
-	Edge(int destination,double length,double maxSpeed,double capacity)
-		:destination(destination),roadLength(length),maxSpeed(maxSpeed),capacity(capacity),flowRate(0.0),freeTravelTime(length/maxSpeed),travelTime(length/maxSpeed), ratio(0.0) {}
+    // ── Vehicle queue ─────────────────────────────────────────
+    // deque instead of queue → supports iteration (needed for timer decrement)
+    // push_back() to enter road | pop_front() to discharge | front() to peek
+    deque<Vehicle*> Q_ij;
 
-	
+    // ── Constructors ──────────────────────────────────────────
+    Edge()
+        : destination(-1), roadLength(0), maxSpeed(1), capacity(1),
+          flowRate(0), freeTravelTime(0), travelTime(0),
+          ratio(0), lastRatio(0), greenSignal(false)
+    { }
 
+    Edge(int destination, double length, double maxSpeed, double capacity)
+        : destination(destination), roadLength(length), maxSpeed(maxSpeed),
+          capacity(capacity), flowRate(0.0),
+          freeTravelTime(length / maxSpeed),
+          travelTime(length / maxSpeed),
+          ratio(0.0), lastRatio(0.0), greenSignal(false)
+    { }
 };
