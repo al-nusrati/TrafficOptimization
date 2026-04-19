@@ -28,7 +28,7 @@ struct Edge
     // ── Vehicle queue ─────────────────────────────────────────
     // deque instead of queue → supports iteration (needed for timer decrement)
     // push_back() to enter road | pop_front() to discharge | front() to peek
-    deque<Vehicle*> Q_ij;
+    deque<Vehicle*> vehiclesOnRoad;
 
     // ── Constructors ──────────────────────────────────────────
     Edge()
