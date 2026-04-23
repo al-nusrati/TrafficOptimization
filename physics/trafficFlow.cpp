@@ -5,27 +5,28 @@ using namespace std;
 TrafficFlow::TrafficFlow(Graph* g) : network(g) {}
 
 void TrafficFlow::decrementTimers(){
-    for (int i = 0; i < MAX_NODES; i++){
-        if (network->nodes[i].id == -1) continue;
+    for (int intersectionID = 0; intersectionID < MAX_NODES; intersectionID++){
+        if (network->nodes[intersectionID].id == -1) continue;
 
-        EdgeNode* curr = network->nodes[i].adjList;
-        while (curr != nullptr){
-            for (Vehicle* v : curr->edge.getVehicles()){
-                v->decrementTime();          
+        EdgeNode* currentRoad = network->nodes[intersectionID].adjList;
+        while (currentRoad != nullptr){
+            for (Vehicle* vehicle : currentRoad->edge.getVehicles()){
+                vehicle->decrementTime();
             }
-            curr = curr->next;
+            currentRoad = currentRoad->next;
         }
     }
 }
 
 void TrafficFlow::updateFlowRates(){
-    for (int i = 0; i < MAX_NODES; i++){
-        if (network->nodes[i].id == -1) continue;
+    for (int intersectionID = 0; intersectionID < MAX_NODES; intersectionID++){
+        if (network->nodes[intersectionID].id == -1) continue;
 
-        EdgeNode* curr = network->nodes[i].adjList;
-        while (curr != nullptr){
-            curr->edge.setFlowRate(static_cast<double>(curr->edge.vehicleCount()));
-            curr = curr->next;
+        EdgeNode* currentRoad = network->nodes[intersectionID].adjList;
+        while (currentRoad != nullptr){
+            int vehicleCount = static_cast<int>(currentRoad->edge.vehicleCount());
+            currentRoad->edge.setFlowRate(vehicleCount);
+            currentRoad = currentRoad->next;
         }
     }
 }
