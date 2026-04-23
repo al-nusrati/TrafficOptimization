@@ -1,49 +1,39 @@
 #include "congestionModel.h"
 
-CongestionModel::CongestionModel(Graph* g) : network(g) {}
+CongestionModel::CongestionModel(Graph* g, double a, double b) : network(g), alpha(a), beta(b) {}
 
-void CongestionModel::updateAllRoads()
-{
-    //Go through every possible intersection slot
+void CongestionModel::updateAllRoads(){
     for (int i = 0; i < MAX_NODES; i++)
     {
         if (network->nodes[i].id == -1) continue;
 
         EdgeNode* currentRoad = network->nodes[i].adjList;
-        //Walk through all outgoing roads one by one
         while (currentRoad != nullptr)
         {
-            //Calculate how congested this road is
             updateOneRoadCongestion(&currentRoad->edge);
-            //Use that congestion to update travel time
             updateOneRoadTravelTime(&currentRoad->edge);
-            //Move to next road from this intersection
             currentRoad = currentRoad->next;
         }
     }
 }
 
-void CongestionModel::updateOneRoadCongestion(Edge* road)
-{
-    if (road->capacity <= 0)    return;
+void CongestionModel::updateOneRoadCongestion(Edge* road){
+    if (road->capacity <= 0) return;
     
-    road->lastRatio = road->ratio;  
-    double vehiclesOnRoad = road->flowRate;
+    road->lastRatio = road->getRatio();                     
+    double vehiclesOnRoad = road->getFlowRate();
     double roadCapacity   = road->capacity;
 
-    road->ratio = vehiclesOnRoad / roadCapacity;
-
+    road->setRatio(vehiclesOnRoad / roadCapacity);
 }
 
 void CongestionModel::updateOneRoadTravelTime(Edge* road)
 {
-    // freeTime is already stored in edge (length / maxSpeed)
     double freeTime         = road->freeTravelTime;
-    double congestionRatio  = road->ratio;
+    double congestionRatio  = road->getRatio();
 
-    // Apply BPR formula
     double congestionPenalty = alpha * pow(congestionRatio, beta);
-    road->travelTime = freeTime * (1.0 + congestionPenalty);
+    road->setTravelTime(freeTime * (1.0 + congestionPenalty));
 }
 
 string CongestionModel::getCongestionLabel(double congestionRatio)
