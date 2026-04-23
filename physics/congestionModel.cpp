@@ -1,41 +1,33 @@
 #include "congestionModel.h"
 
-CongestionModel::CongestionModel(Graph* g, double a, double b) : network(g), alpha(a), beta(b) {}
+CongestionModel::CongestionModel(Graph* g, double a, double b) 
+    : network(g), alpha(a), beta(b) {}
 
-void CongestionModel::updateAllRoads(){
-    for (int intersectionID = 0; intersectionID < MAX_NODES; intersectionID++){
-        if (network->nodes[intersectionID].id == -1) continue;
-
-        EdgeNode* currentRoad = network->nodes[intersectionID].adjList;
-        while (currentRoad != nullptr){
-            updateOneRoadCongestion(&currentRoad->edge);
-            updateOneRoadTravelTime(&currentRoad->edge);
-            currentRoad = currentRoad->next;
+void CongestionModel::updateAllRoads()
+{
+    for (int i = 0; i < MAX_NODES; i++)
+    {
+        if (network->nodes[i].id == -1) continue;
+        EdgeNode* curr = network->nodes[i].adjList;
+        while (curr)
+        {
+            updateOneRoadCongestion(&curr->edge);
+            updateOneRoadTravelTime(&curr->edge);
+            curr = curr->next;
         }
     }
 }
 
-void CongestionModel::updateOneRoadCongestion(Edge* road){
+void CongestionModel::updateOneRoadCongestion(Edge* road)
+{
     if (road->capacity <= 0) return;
     road->lastRatio = road->getRatio();
-    
-    double vehiclesOnRoad = road->getFlowRate();
-    double roadCapacity   = road->capacity;
-
-    road->setRatio(vehiclesOnRoad / roadCapacity);
+    road->setRatio(road->getFlowRate() / road->capacity);
 }
 
-void CongestionModel::updateOneRoadTravelTime(Edge* road){
-    double freeFlowTime      = road->freeTravelTime;
-    double congestionRatio   = road->getRatio();
-
-    double penalty = alpha * pow(congestionRatio, beta);
-    road->setTravelTime(freeFlowTime * (1.0 + penalty));
-}
-
-string CongestionModel::getCongestionLabel(double congestionRatio){
-    if (congestionRatio < 0.3)      return "Free";
-    else if (congestionRatio < 0.7) return "Moderate";
-    else if (congestionRatio < 0.95)return "Congested";
-    else                            return "Severe";
+void CongestionModel::updateOneRoadTravelTime(Edge* road)
+{
+    double ratio = road->getRatio();
+    double penalty = alpha * pow(ratio, beta);
+    road->setTravelTime(road->freeTravelTime * (1.0 + penalty));
 }
