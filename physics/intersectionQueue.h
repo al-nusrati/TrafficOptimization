@@ -2,17 +2,14 @@
 #include "../core/Graph.h"
 #include "../core/Vehicle.h"
 
-//  Discharges vehicles from edges when signal is green
-class IntersectionQueue{
+class IntersectionQueue
+{
 private:
     Graph* network;
-    double dischargeRate;       // max vehicles discharged per edge per step
+    double dischargeRate;
 
 public:
-    IntersectionQueue(Graph* g, double dischargeRate = 3.0);
-
-    void dischargeVehicles(int currentTime);
-
-    // How many vehicles on edge src->dest have remainingTime == 0
+    IntersectionQueue(Graph* g, double rate = 3.0);
+    void dischargeVehicles();   // no currentTime
     int getWaitingCount(int src, int dest) const;
 };

@@ -2,83 +2,69 @@
 #include <iostream>
 using namespace std;
 
-IntersectionQueue::IntersectionQueue(Graph* g, double rate) : network(g), dischargeRate(rate) {}
+IntersectionQueue::IntersectionQueue(Graph* g, double rate)  : network(g), dischargeRate(rate) {}
 
-void IntersectionQueue::dischargeVehicles(int currentTime){
-    for (int intersectionID = 0; intersectionID < MAX_NODES; intersectionID++){
-        if (network->nodes[intersectionID].id == -1) continue;
+void IntersectionQueue::dischargeVehicles()
+{
+    for (int i = 0; i < MAX_NODES; i++)
+    {
+        if (network->nodes[i].id == -1) continue;
+        EdgeNode* curr = network->nodes[i].adjList;
+        while (curr)
+        {
+            Edge& road = curr->edge;
+            int dest = road.destination;
 
-        EdgeNode* currentRoadNode = network->nodes[intersectionID].adjList;
-        while (currentRoadNode != nullptr){
-            Edge& road = currentRoadNode->edge;
-            int destinationNode = road.destination;
-
-            // Gate 1: signal check
             if (!road.isGreenSignal())
             {
-                currentRoadNode = currentRoadNode->next;
+                curr = curr->next;
                 continue;
             }
 
-            int dischargedCount = 0;
+            int discharged = 0;
             int maxDischarge = static_cast<int>(dischargeRate);
 
-            while (!road.isEmpty() && dischargedCount < maxDischarge)
+            while (!road.isEmpty() && discharged < maxDischarge)
             {
-                Vehicle* vehicle = road.frontVehicle();
+                Vehicle* v = road.frontVehicle();
+                if (v->remainingTime > 0.0) break;
 
-                // Gate 2: vehicle still moving?
-                if (vehicle->remainingTime > 0.0)
-                    break;
-
-                // Case A: reached final destination
-                if (destinationNode == vehicle->vehicleDestination){
+                if (dest == v->vehicleDestination)
+                {
                     road.removeVehicle();
-                    vehicle->currentNode = destinationNode;
-                    vehicle->markArrived();
-                    dischargedCount++;
+                    v->currentNode = dest;
+                    v->markArrived();
+                    discharged++;
                     continue;
                 }
 
-                // Case B: move to next road
-                int nextNode = vehicle->nextNode;
-                if (nextNode == -1) break;
+                int next = v->nextNode;
+                if (next == -1) break;
 
-                Edge* nextRoad = network->getEdge(destinationNode, nextNode);
-                if (nextRoad == nullptr){
-                    cout << "[Queue] WARNING: missing road " << destinationNode << "->" << nextNode  << " for vehicle " << vehicle->vehicleID << "\n";
-                    break;
-                }
+                Edge* nextRoad = network->getEdge(dest, next);
+                if (!nextRoad) break;
 
-                // Gate 3: capacity check
-                double availableSpace = nextRoad->capacity - nextRoad->getFlowRate();
-                if (availableSpace <= 0.0)
-                    break;
+                if (nextRoad->capacity - nextRoad->getFlowRate() <= 0.0) break;
 
-                // Move vehicle to next road
                 road.removeVehicle();
-                vehicle->currentNode   = destinationNode;
-                vehicle->nextNode      = -1;
-                vehicle->remainingTime = nextRoad->getTravelTime();
-                vehicle->status        = MOVING;
-                nextRoad->addVehicle(vehicle);
-
-                dischargedCount++;
+                v->currentNode = dest;
+                v->nextNode = -1;
+                v->remainingTime = nextRoad->getTravelTime();
+                v->status = MOVING;
+                nextRoad->addVehicle(v);
+                discharged++;
             }
-
-            currentRoadNode = currentRoadNode->next;
+            curr = curr->next;
         }
     }
 }
 
-int IntersectionQueue::getWaitingCount(int src, int dest) const{
-    Edge* edge = network->getEdge(src, dest);
-    if (edge == nullptr) return 0;
-
-    int waitingVehicles = 0;
-    for (Vehicle* vehicle : edge->getVehicles()){
-        if (vehicle->remainingTime <= 0.0)
-            waitingVehicles++;
-    }
-    return waitingVehicles;
+int IntersectionQueue::getWaitingCount(int src, int dest) const
+{
+    Edge* e = network->getEdge(src, dest);
+    if (!e) return 0;
+    int count = 0;
+    for (Vehicle* v : e->getVehicles())
+        if (v->remainingTime <= 0.0) count++;
+    return count;
 }
