@@ -75,5 +75,5 @@ public:
     }
 
     const deque<Vehicle*>& getVehicles() const { return vehiclesOnRoad; }
-    size_t vehicleCount() const { return vehiclesOnRoad.size(); }
+    size_t vehicleCount() const { return vehiclesOnRoad.size(); }   
 };
