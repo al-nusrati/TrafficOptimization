@@ -6,18 +6,18 @@ IntersectionQueue::IntersectionQueue(Graph* g, double rate)  : network(g), disch
 
 void IntersectionQueue::dischargeVehicles()
 {
-    for (int i = 0; i < MAX_NODES; i++)
+    for (int i = 0; i < MAX_NODES; i++)//itertaning through intersections
     {
         if (network->nodes[i].id == -1) continue;
-        EdgeNode* curr = network->nodes[i].adjList;
-        while (curr)
+        EdgeNode* currRoad = network->nodes[i].adjList; 
+        while (currRoad)//iterating through roads from that intersection 
         {
-            Edge& road = curr->edge;
+            Edge& road = currRoad->edge;
             int dest = road.destination;
 
             if (!road.isGreenSignal())
             {
-                curr = curr->next;
+                currRoad = currRoad->next;
                 continue;
             }
 
@@ -27,9 +27,9 @@ void IntersectionQueue::dischargeVehicles()
             while (!road.isEmpty() && discharged < maxDischarge)
             {
                 Vehicle* v = road.frontVehicle();
-                if (v->remainingTime > 0.0) break;
+                if (v->remainingTime > 0.0) break;  //front vehicle cant be discharged yet
 
-                if (dest == v->vehicleDestination)
+                if (dest == v->vehicleDestination)  
                 {
                     road.removeVehicle();
                     v->currentNode = dest;
@@ -54,7 +54,7 @@ void IntersectionQueue::dischargeVehicles()
                 nextRoad->addVehicle(v);
                 discharged++;
             }
-            curr = curr->next;
+            currRoad = currRoad->next;
         }
     }
 }

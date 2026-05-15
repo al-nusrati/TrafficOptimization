@@ -6,10 +6,10 @@ class IntersectionQueue
 {
 private:
     Graph* network;
-    double dischargeRate;
+    double dischargeRate;//pop from road -> pass through intersection -> add to next road
 
 public:
-    IntersectionQueue(Graph* g, double rate = 3.0);
-    void dischargeVehicles();   // no currentTime
+    IntersectionQueue(Graph* g, double rate = 3.0);   
+    void dischargeVehicles();   
     int getWaitingCount(int src, int dest) const;
 };
