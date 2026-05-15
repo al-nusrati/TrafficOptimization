@@ -68,8 +68,7 @@ void PerformanceMetrics::exportToJSON(const string& filename) const
     }
     double avgTravel = (arrived > 0) ? travelSum / arrived : 0.0;
     double throughput = (currentTime > 0) ? (double)arrived / currentTime : 0.0;
-    double avgCong = (congestionSnapshots > 0) 
-                     ? (totalCongestionAccum / congestionSnapshots) * 100.0 : 0.0;
+    double avgCong = (congestionSnapshots > 0) ? (totalCongestionAccum / congestionSnapshots) * 100.0 : 0.0;
 
     file << fixed;
     file.precision(2);
