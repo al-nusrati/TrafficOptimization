@@ -15,7 +15,7 @@ class Simulator
 {
 private:
     Graph* graph;
-    unordered_map<int, Vehicle>   vehicles;       // vehicleID → Vehicle
+    unordered_map<int, Vehicle>   vehicles;       // vehicleID →21 Vehicle
     vector<trafficSignalControl*> signals;         // one per intersection
     unordered_map<int, GPS*>      carNavigations;  // vehicleID → GPS
     int                           currentTime;
