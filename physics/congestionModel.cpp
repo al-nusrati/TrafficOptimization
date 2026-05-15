@@ -17,7 +17,6 @@ void CongestionModel::updateAllRoads()
         }
     }
 }
-
 void CongestionModel::updateOneRoadCongestion(Edge* road)
 {
     if (road->capacity <= 0) return;
@@ -28,6 +27,6 @@ void CongestionModel::updateOneRoadCongestion(Edge* road)
 void CongestionModel::updateOneRoadTravelTime(Edge* road)
 {
     double ratio = road->getRatio();
-    double penalty = alpha * pow(ratio, beta);
+    double penalty =  alpha * pow(ratio, beta);  // formula: travelTime = freeTravelTime * (1 + alpha * (flowRate/capacity)^beta)
     road->setTravelTime(road->freeTravelTime * (1.0 + penalty));
 }
